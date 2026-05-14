@@ -7,8 +7,8 @@ dependencies. Open `index.html` and play.
 
 ## Edition
 
-**v0.5.0** — MVP edition · open source
-*browser workstation · edition 0.0.5*
+**v0.6.0** — MVP edition · open source
+*browser workstation · edition 0.0.6*
 
 ---
 
@@ -81,6 +81,17 @@ anywhere with a browser and double-click `index.html`.
 ---
 
 ## Changelog
+
+### v0.6.0 (edition 0.0.6)
+- **Panel rename + reorder**: rearranged the analyzer/effect panels
+  to keep visualizers contiguous and put the XY effect pad at the end.
+  | new | old | name                |
+  |-----|-----|---------------------|
+  | [05] | [06] | spectrum-scope (renamed, was "spectrum · scope") |
+  | [06] | [07] | freq matrix         |
+  | [07] | [05] | xy effect pad       |
+  - All cosmetic; internal panel IDs (`pScope`, `pFreq`, `pKaoss`)
+    unchanged. Layout engine, dropdowns, and saved state are unaffected.
 
 ### v0.5.0 (edition 0.0.5)
 - **Freq matrix · JS-driven sizer**: replaced the CSS aspect-ratio

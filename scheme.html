@@ -345,8 +345,8 @@ footer{
     <div class="sub">// scheme · architecture reference</div>
   </div>
   <div class="meta">
-    edition 0.0.5<br>
-    v0.5.0<br>
+    edition 0.0.6<br>
+    v0.6.0<br>
     case :: scheme_001
   </div>
 </div>
@@ -469,6 +469,15 @@ footer{
 </div>
 
 <div class="callout">
+  <span class="label">// upgrade · v0.6.0</span>
+  <strong>Panel rename + reorder</strong>: visualizers are now contiguous
+  at [05] (spectrum-scope, renamed) and [06] (freq matrix), with the
+  [07] xy effect pad at the end. Internal panel IDs (<code>pScope</code>,
+  <code>pFreq</code>, <code>pKaoss</code>) are unchanged — the renumbering
+  is cosmetic, applied to title bars and layout comments only.
+</div>
+
+<div class="callout">
   <span class="label">// upgrade · v0.5.0</span>
   <strong>Freq matrix sizing rewritten</strong> in JS for pixel-perfect
   cell geometry. A <code>ResizeObserver</code> on the panel-body wrapper
@@ -525,9 +534,9 @@ footer{
   <div class="cell" style="grid-column: 1 / span 3; grid-row: 2 / span 4;">[ 02 ] <b>tracks</b></div>
   <div class="cell" style="grid-column: 4 / span 5; grid-row: 2 / span 4;">[ 03 ] <b>drum grid</b></div>
   <div class="cell" style="grid-column: 9 / span 4; grid-row: 2 / span 4;">[ 04 ] <b>keyboard</b></div>
-  <div class="cell" style="grid-column: 1 / span 12; grid-row: 6 / span 2;">[ 05 ] <b>kaoss pad</b></div>
-  <div class="cell" style="grid-column: 1 / span 8; grid-row: 8;">[ 06 ] <b>oscilloscope</b></div>
-  <div class="cell" style="grid-column: 9 / span 4; grid-row: 8;">[ 07 ] <b>freq matrix</b></div>
+  <div class="cell" style="grid-column: 1 / span 12; grid-row: 6 / span 2;">[ 07 ] <b>kaoss pad</b></div>
+  <div class="cell" style="grid-column: 1 / span 8; grid-row: 8;">[ 05 ] <b>spectrum-scope</b></div>
+  <div class="cell" style="grid-column: 9 / span 4; grid-row: 8;">[ 06 ] <b>freq matrix</b></div>
 </div>
 
 <p style="margin-top: var(--sp-4)">
@@ -651,7 +660,7 @@ footer{
 
 <!-- ============ [08] FILE MANIFEST ============ -->
 <h2>[ 08 ] · file manifest</h2>
-<div class="tag">// <b>release</b> · v0.5.0 · edition 0.0.5</div>
+<div class="tag">// <b>release</b> · v0.6.0 · edition 0.0.6</div>
 
 <table>
   <thead><tr><th>file</th><th>purpose</th><th>size</th></tr></thead>
@@ -665,7 +674,7 @@ footer{
 <!-- ============ FOOTER ============ -->
 <footer>
   <span>project-daw // scheme</span>
-  <span>edition 0.0.5 · v0.5.0</span>
+  <span>edition 0.0.6 · v0.6.0</span>
 </footer>
 
 </main>
