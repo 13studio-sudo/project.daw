@@ -1788,7 +1788,7 @@ body.veil-gone .veil{ opacity:0; pointer-events:none }
 <!-- LOADING VEIL -->
 <div class="veil" id="veil">
   <div class="mark" id="vMark">PROJECT-DAW</div>
-  <div class="tag" id="vTag">browser workstation · edition 0.0.5</div>
+  <div class="tag" id="vTag">browser workstation · edition 0.0.6</div>
   <div class="bar-wrap" id="vWrap"><div class="bar" id="vBar"></div></div>
   <div class="pct" id="vPct">0%</div>
   <div class="hint" id="vHint">click anywhere to enter</div>
@@ -1954,7 +1954,7 @@ body.veil-gone .veil{ opacity:0; pointer-events:none }
   <!-- SPECTRUM SCOPE PANEL -->
   <section class="panel" id="pScope" data-default-w="420" data-default-h="220">
     <div class="panel-head">
-      <div class="title">[ 06 ] <span class="num">// spectrum · scope</span></div>
+      <div class="title">[ 05 ] <span class="num">// spectrum-scope</span></div>
       <div class="tools">
         <button class="tb-btn" data-act="collapse">−</button><button class="tb-btn" data-act="close" title="close">×</button>
       </div>
@@ -1979,7 +1979,7 @@ body.veil-gone .veil{ opacity:0; pointer-events:none }
   <!-- FREQ MATRIX PANEL -->
   <section class="panel" id="pFreq" data-default-w="280" data-default-h="380">
     <div class="panel-head">
-      <div class="title">[ 07 ] <span class="num">// freq matrix</span></div>
+      <div class="title">[ 06 ] <span class="num">// freq matrix</span></div>
       <div class="tools">
         <button class="tb-btn" data-act="collapse">−</button><button class="tb-btn" data-act="close" title="close">×</button>
       </div>
@@ -2141,7 +2141,7 @@ body.veil-gone .veil{ opacity:0; pointer-events:none }
   <!-- KAOSS PAD -->
   <section class="panel" id="pKaoss" data-default-w="520" data-default-h="420">
     <div class="panel-head">
-      <div class="title">[ 05 ] <span class="num">// xy effect pad</span></div>
+      <div class="title">[ 07 ] <span class="num">// xy effect pad</span></div>
       <div class="tools">
         <button class="tb-btn" data-act="collapse">−</button><button class="tb-btn" data-act="close" title="close">×</button>
       </div>
@@ -2276,7 +2276,7 @@ body.veil-gone .veil{ opacity:0; pointer-events:none }
           <p class="credit-line">
             <span class="credit-brand">PROJECT-DAW</span>
             <span class="credit-sep">·</span>
-            <span class="credit-edition">v0.5.0 · MVP edition · open source</span>
+            <span class="credit-edition">v0.6.0 · MVP edition · open source</span>
           </p>
           <p class="credit-line">
             built by <a href="https://13studio.co" target="_blank" rel="noopener">13STUDIO</a>
@@ -4404,7 +4404,7 @@ const PANEL_LABELS = {
   pDrums:'drum sequencer',
   pKeyboard:'keyboard',
   pKaoss:'xy effect pad',
-  pScope:'spectrum · scope',
+  pScope:'spectrum-scope',
   pFreq:'freq matrix',
   // overlay
   pStart:'let\'s play (overlay)',
@@ -4418,9 +4418,9 @@ const LAYOUTS = [
     /* STUDIO — user's primary layout (4-strip architectural grid).
        Strip 2: [00] samples — full width, thin
        Strip 3: 80% LEFT { top [01] transport, bottom [02] tracks + [03] drums }
-                20% RIGHT { [06] scope + [07] freq stacked }
+                20% RIGHT { [05] scope + [06] freq stacked }
        Strip 4: 80% LEFT [04] keyboard
-                20% RIGHT [05] kaoss pad
+                20% RIGHT [07] kaoss pad
 
        All edges aligned to a 4-column gutter system: outer margin 0.5%,
        inner gutter 0.5%, so neighbouring panels share a 1% breathing line. */
@@ -4433,9 +4433,9 @@ const LAYOUTS = [
       // grid panel), so the 7 remaining panels span the full workspace
       // height. The .samples-bar overlay sits above all panels at the top.
       //
-      //   STRIP 1: [01] 80% + [06] 20%, h=0.32  (transport + scope)
-      //   STRIP 2: [02] 20% + [03] 60% + [07] 20%, h=0.30  (tracks + drums + freq)
-      //   STRIP 3: [04] 80% + [05] 20%, h=0.38  (keyboard + kaoss)
+      //   STRIP 1: [01] 80% + [05] 20%, h=0.32  (transport + scope)
+      //   STRIP 2: [02] 20% + [03] 60% + [06] 20%, h=0.30  (tracks + drums + freq)
+      //   STRIP 3: [04] 80% + [07] 20%, h=0.38  (keyboard + kaoss)
       //
       // Touching boundaries — wsApplyLayout subtracts 4px from each panel's
       // width/height to produce uniform 4px visual gaps. Workspace itself
