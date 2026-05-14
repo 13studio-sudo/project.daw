@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PROJECT-DAW · scheme</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Michroma&family=Share+Tech+Mono&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   PROJECT-DAW // SCHEME
+   Architecture diagram + reference document.
+   Themed to match the main app's terminal-orange aesthetic.
+   ========================================================= */
+
+:root{
+  --bg: #0a0806;
+  --ink: #ff7a18;
+  --ink-dim: #b85410;
+  --ink-faint: rgba(255, 122, 24, 0.55);
+  --ink-ghost: rgba(255, 122, 24, 0.18);
+  --line: rgba(255, 122, 24, 0.45);
+  --line-soft: rgba(255, 122, 24, 0.18);
+  --line-faint: rgba(255, 122, 24, 0.08);
+  --panel: rgba(255, 122, 24, 0.03);
+  --hot: #ff4040;
+
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+}
+
+*{ box-sizing: border-box; }
+html, body{ margin:0; padding:0; background: var(--bg); color: var(--ink); }
+body{
+  font-family: 'Share Tech Mono', 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+  padding: var(--sp-7) var(--sp-6) var(--sp-8);
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* scanline overlay (matches app) */
+body::before{
+  content:"";
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 2px,
+    rgba(255, 122, 24, 0.025) 2px,
+    rgba(255, 122, 24, 0.025) 3px
+  );
+  mix-blend-mode: overlay;
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 1;
+}
+/* grain overlay */
+body::after{
+  content:"";
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/></svg>");
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: 2;
+}
+main{ position: relative; z-index: 3; }
+
+/* ---------- typography ---------- */
+h1, h2, h3{
+  font-family: 'Major Mono Display', 'Share Tech Mono', monospace;
+  font-weight: 400;
+  margin: 0;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+h1{
+  font-size: 28px;
+  margin-bottom: var(--sp-2);
+}
+h2{
+  font-family: 'Michroma', 'Share Tech Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin: var(--sp-7) 0 var(--sp-3);
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px solid var(--line-soft);
+}
+h3{
+  font-size: 14px;
+  color: var(--ink);
+  margin: var(--sp-5) 0 var(--sp-2);
+  letter-spacing: 0.08em;
+}
+p{ margin: var(--sp-2) 0 var(--sp-3); color: var(--ink-dim); }
+strong{ color: var(--ink); font-weight: 400; }
+code, .mono{
+  font-family: 'JetBrains Mono', 'Share Tech Mono', monospace;
+  font-size: 12px;
+  color: var(--ink);
+  background: var(--ink-ghost);
+  padding: 1px 5px;
+  border: 1px solid var(--line-soft);
+}
+
+/* ---------- masthead ---------- */
+.masthead{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: var(--sp-4);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--sp-6);
+}
+.masthead .mark{
+  font-family: 'Major Mono Display', monospace;
+  font-size: 22px;
+  letter-spacing: 0.06em;
+}
+.masthead .sub{
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-faint);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.masthead .meta{
+  text-align: right;
+  font-size: 10px;
+  color: var(--ink-faint);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  line-height: 1.8;
+}
+
+/* ---------- section tag (bracketed numbers like the app) ---------- */
+.tag{
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  margin-bottom: var(--sp-2);
+}
+.tag b{ color: var(--ink); font-weight: 400; }
+
+/* ---------- diagram blocks ---------- */
+.chain{
+  border: 1px solid var(--line);
+  padding: var(--sp-5);
+  margin: var(--sp-4) 0 var(--sp-6);
+  background: var(--panel);
+}
+.chain-title{
+  font-family: 'Michroma', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--ink-dim);
+  margin-bottom: var(--sp-4);
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px dashed var(--line-soft);
+}
+
+/* node — a single audio/component box */
+.node{
+  display: inline-block;
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  position: relative;
+  white-space: nowrap;
+}
+.node.dim{
+  border-color: var(--line-soft);
+  color: var(--ink-dim);
+}
+.node.hot{
+  border-color: var(--ink);
+  color: var(--ink);
+  box-shadow: 0 0 0 1px var(--ink-ghost);
+}
+.node.fix{
+  border-color: var(--hot);
+  color: var(--hot);
+}
+
+/* arrow */
+.arrow{
+  display: inline-block;
+  padding: 0 var(--sp-2);
+  color: var(--ink-faint);
+  font-family: monospace;
+}
+
+/* horizontal flow row */
+.flow{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  margin: var(--sp-3) 0;
+}
+.flow .node{ flex: 0 0 auto; }
+.flow-label{
+  font-size: 10px;
+  color: var(--ink-faint);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-top: var(--sp-1);
+  padding-left: var(--sp-1);
+}
+
+/* split: a chain that branches */
+.split{
+  border-left: 1px solid var(--line-soft);
+  padding: var(--sp-2) 0 var(--sp-2) var(--sp-4);
+  margin: var(--sp-2) 0 var(--sp-2) var(--sp-5);
+}
+.split .flow{ margin: var(--sp-2) 0; }
+
+/* legend */
+.legend{
+  display: flex;
+  gap: var(--sp-5);
+  flex-wrap: wrap;
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-3);
+  border-top: 1px dashed var(--line-soft);
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+.legend .item{ display: flex; align-items: center; gap: var(--sp-2); }
+.swatch{
+  display: inline-block;
+  width: 14px; height: 14px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+}
+.swatch.hot{ border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink-ghost); }
+.swatch.dim{ border-color: var(--line-soft); }
+.swatch.fix{ border-color: var(--hot); }
+
+/* ---------- panel layout grid (visual representation of the workspace) ---------- */
+.layout{
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(8, 36px);
+  gap: var(--sp-1);
+  margin-top: var(--sp-3);
+}
+.layout .cell{
+  border: 1px solid var(--line);
+  background: var(--panel);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  padding: var(--sp-1) var(--sp-2);
+  color: var(--ink-dim);
+  display: flex;
+  align-items: center;
+  text-transform: uppercase;
+}
+.layout .cell b{ color: var(--ink); font-weight: 400; }
+
+/* ---------- table ---------- */
+table{
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--sp-3) 0;
+  font-size: 12px;
+}
+th, td{
+  text-align: left;
+  padding: var(--sp-2) var(--sp-3);
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--ink-dim);
+}
+th{
+  color: var(--ink);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 10px;
+  border-bottom: 1px solid var(--line);
+}
+td b{ color: var(--ink); font-weight: 400; }
+
+/* ---------- callout ---------- */
+.callout{
+  border-left: 2px solid var(--ink);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--ink-ghost);
+  margin: var(--sp-3) 0;
+  font-size: 12px;
+  color: var(--ink);
+}
+.callout.fix{ border-left-color: var(--hot); background: rgba(255, 64, 64, 0.08); color: var(--hot); }
+.callout .label{
+  font-family: 'Michroma', monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: var(--sp-1);
+  opacity: 0.7;
+}
+
+/* ---------- footer ---------- */
+footer{
+  margin-top: var(--sp-8);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--line-soft);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+}
+</style>
+</head>
+<body>
+<main>
+
+<!-- ============ MASTHEAD ============ -->
+<div class="masthead">
+  <div>
+    <div class="mark">PROJECT-DAW</div>
+    <div class="sub">// scheme · architecture reference</div>
+  </div>
+  <div class="meta">
+    edition 0.0.5<br>
+    v0.5.0<br>
+    case :: scheme_001
+  </div>
+</div>
+
+<p style="color: var(--ink);">
+  This document is the architectural reference for PROJECT-DAW. It maps
+  the audio signal chain, the visual workspace, the theming system, and
+  the boot sequence. Read it next to <code>index.html</code> — section
+  numbers and bracketed labels match the source.
+</p>
+
+<!-- ============ [01] AUDIO SIGNAL CHAIN ============ -->
+<h2>[ 01 ] · audio signal chain</h2>
+<div class="tag">// <b>master bus</b> · single AudioContext · all tracks → fxIn → master → destination</div>
+
+<div class="chain">
+  <div class="chain-title">// per-track to master flow</div>
+
+  <div class="flow">
+    <span class="node dim">track.gain</span>
+    <span class="arrow">→</span>
+    <span class="node">Audio.fxIn (= filter)</span>
+    <span class="arrow">→</span>
+    <span class="node">distortion <small>(WaveShaper)</small></span>
+    <span class="arrow">→</span>
+    <span class="node">bitcrush <small>(AudioWorklet)</small></span>
+  </div>
+  <div class="flow-label">tracks → fx insert chain</div>
+
+  <div class="split">
+    <div class="flow">
+      <span class="node">bitcrush</span>
+      <span class="arrow">→</span>
+      <span class="node">sum (dry)</span>
+    </div>
+    <div class="flow">
+      <span class="node">bitcrush</span>
+      <span class="arrow">→</span>
+      <span class="node">delay</span>
+      <span class="arrow">⟲</span>
+      <span class="node dim">delayFb</span>
+      <span class="arrow">→</span>
+      <span class="node dim">delayWet</span>
+      <span class="arrow">→</span>
+      <span class="node">sum</span>
+    </div>
+    <div class="flow-label">dry/wet split — kaoss-pad delay (separate from master fx delay)</div>
+  </div>
+
+  <div class="flow">
+    <span class="node">sum</span>
+    <span class="arrow">→</span>
+    <span class="node">eqLow</span>
+    <span class="arrow">→</span>
+    <span class="node">eqMid</span>
+    <span class="arrow">→</span>
+    <span class="node">eqHi</span>
+  </div>
+  <div class="flow-label">master 3-band EQ (low shelf · peaking · high shelf)</div>
+
+  <div class="split">
+    <div class="flow">
+      <span class="node">eqHi</span>
+      <span class="arrow">→</span>
+      <span class="node">master <small>(gain 0.7)</small></span>
+    </div>
+    <div class="flow">
+      <span class="node">eqHi</span>
+      <span class="arrow">→</span>
+      <span class="node">masterReverb <small>(convolver)</small></span>
+      <span class="arrow">→</span>
+      <span class="node dim">reverbWet</span>
+      <span class="arrow">→</span>
+      <span class="node">master</span>
+    </div>
+    <div class="flow">
+      <span class="node">eqHi</span>
+      <span class="arrow">→</span>
+      <span class="node">masterFxDelay</span>
+      <span class="arrow">⟲</span>
+      <span class="node dim">fxDelayFb (0.42)</span>
+      <span class="arrow">→</span>
+      <span class="node dim">fxDelayWet</span>
+      <span class="arrow">→</span>
+      <span class="node">master</span>
+    </div>
+    <div class="flow-label">three parallel master FX sends</div>
+  </div>
+
+  <div class="flow">
+    <span class="node">master</span>
+    <span class="arrow">→</span>
+    <span class="node">ctx.destination</span>
+    <span class="arrow">+</span>
+    <span class="node">recDest <small>(MediaStream)</small></span>
+    <span class="arrow">+</span>
+    <span class="node">analyser <small>(FFT 2048)</small></span>
+  </div>
+  <div class="flow-label">final fanout — audio out, recorder, visualizers</div>
+
+  <div class="legend">
+    <div class="item"><span class="swatch"></span> active node</div>
+    <div class="item"><span class="swatch dim"></span> dim (gain=0 by default)</div>
+    <div class="item"><span class="swatch fix"></span> patched in v0.2.0</div>
+  </div>
+</div>
+
+<div class="callout fix">
+  <span class="label">// PATCH · v0.2.0</span>
+  The <strong>WaveShaper distortion curve</strong> was the source of an idle
+  DC injection of ~−48 dBFS (visible in the Freq Matrix as lit cells at
+  20–100 Hz when nothing was playing). The 256-entry curve was sampled at
+  <code>(2i)/n - 1</code>, which makes <code>curve[127]=-0.0078</code> and
+  <code>curve[128]=0</code>. WaveShaper interpolates at <code>x=0</code> to
+  the midpoint of those two, producing constant <code>-0.0039</code>
+  output for silent input — which the FX delay loop's 0.42 feedback then
+  amplified. Fixed by sampling at <code>(2i+1)/n - 1</code> so the curve
+  is antisymmetric around the half-index midpoint: silence in → exact
+  silence out.
+</div>
+
+<div class="callout">
+  <span class="label">// upgrade · v0.5.0</span>
+  <strong>Freq matrix sizing rewritten</strong> in JS for pixel-perfect
+  cell geometry. A <code>ResizeObserver</code> on the panel-body wrapper
+  computes the largest integer cell-size that fits the available space,
+  then writes it as a CSS variable used by the grid's
+  <code>grid-template-columns: repeat(N, var(--fm-cell))</code>. Result:
+  cells are always exactly square, gaps are always exactly 2px in both
+  directions, and the matrix letterboxes inside the panel (Option A —
+  never distorts). Works identically in 20×10 and 40×20 modes.
+</div>
+
+<div class="callout">
+  <span class="label">// upgrade · v0.4.0</span>
+  <strong>Panels renumbered</strong> to sequential [00]–[07] with no gaps.
+  <strong>Freq matrix</strong> now offers two resolutions via a dropdown
+  in its panel head: 20×10 (200 cells) and 40×20 (800 cells). Both modes
+  share a 2:1 container aspect-ratio, so switching doesn't reshape the
+  panel. Each cell is locked to 1:1 via redundant CSS constraints
+  (container <code>aspect-ratio: COLS/ROWS</code> + cell
+  <code>aspect-ratio: 1/1</code>) so cells stay square at any panel size.
+</div>
+
+<div class="callout">
+  <span class="label">// upgrade · v0.3.0</span>
+  Both <strong>ScriptProcessorNode</strong> uses (bitcrusher + WAV recorder
+  tap) have been replaced with <strong>AudioWorkletNode</strong> processors.
+  ScriptProcessor was deprecated and ran DSP on the main thread; AudioWorklet
+  runs on the audio thread with lower latency and no jank risk. The bitcrusher
+  exposes its <code>bits</code> and <code>normFreq</code> values as
+  <code>AudioParam</code> descriptors so they're properly automatable, and
+  the worklet node has accessor properties (<code>.bits</code>,
+  <code>.normFreq</code>) that route writes through
+  <code>setValueAtTime</code> — preserving the existing dispatcher syntax.
+  Worklet sources are defined as JS string literals in the main file,
+  Blob-wrapped, and loaded via <code>audioWorklet.addModule(blobURL)</code>
+  so PROJECT-DAW stays a single HTML file.
+</div>
+
+<!-- ============ [02] WORKSPACE LAYOUT ============ -->
+<h2>[ 02 ] · workspace layout</h2>
+<div class="tag">// <b>studio</b> layout · 12-column fractional grid · 4px gap</div>
+
+<p>
+  Two layers. <strong>Layer 0</strong> is the docked grid: panels snap into
+  a computed <code>grid-template-columns</code> derived from each panel's
+  fractional coords. <strong>Layer 1</strong> is the overlay layer: the
+  <code>[00] let's play</code> welcome panel floats freely above with
+  <code>z-index: 50</code> and <code>backdrop-filter: blur</code>.
+</p>
+
+<div class="layout">
+  <!-- approximate visualization of the studio layout -->
+  <div class="cell" style="grid-column: 1 / span 12; grid-row: 1;">[ 01 ] <b>transport · master · timeline</b></div>
+  <div class="cell" style="grid-column: 1 / span 3; grid-row: 2 / span 4;">[ 02 ] <b>tracks</b></div>
+  <div class="cell" style="grid-column: 4 / span 5; grid-row: 2 / span 4;">[ 03 ] <b>drum grid</b></div>
+  <div class="cell" style="grid-column: 9 / span 4; grid-row: 2 / span 4;">[ 04 ] <b>keyboard</b></div>
+  <div class="cell" style="grid-column: 1 / span 12; grid-row: 6 / span 2;">[ 05 ] <b>kaoss pad</b></div>
+  <div class="cell" style="grid-column: 1 / span 8; grid-row: 8;">[ 06 ] <b>oscilloscope</b></div>
+  <div class="cell" style="grid-column: 9 / span 4; grid-row: 8;">[ 07 ] <b>freq matrix</b></div>
+</div>
+
+<p style="margin-top: var(--sp-4)">
+  The layout is <strong>always recomputed on boot</strong>. Saved pixel
+  positions from prior sessions are deliberately discarded — they go stale
+  across browser-width changes. Only collapse/visibility state is restored
+  from <code>localStorage</code>.
+</p>
+
+<!-- ============ [03] THEMING SYSTEM ============ -->
+<h2>[ 03 ] · theming system</h2>
+<div class="tag">// <b>5 source variables</b> → ~30 derived tokens via color-mix()</div>
+
+<table>
+  <thead>
+    <tr><th>token</th><th>role</th><th>default</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><b>--bg</b></td><td>page background</td><td>near-black</td></tr>
+    <tr><td><b>--ink</b></td><td>primary foreground (text, borders, accents)</td><td>terminal orange</td></tr>
+    <tr><td><b>--ink-dim</b></td><td>secondary text</td><td>derived 60% of ink</td></tr>
+    <tr><td><b>--line</b></td><td>primary panel/border line</td><td>orange @ 45% alpha</td></tr>
+    <tr><td><b>--line-soft</b></td><td>secondary/separator line</td><td>orange @ 18% alpha</td></tr>
+  </tbody>
+</table>
+
+<p>
+  Every other token in the system — <code>--ink-faint</code>,
+  <code>--ink-ghost</code>, <code>--panel</code>, <code>--hover</code>,
+  <code>--active</code>, etc. — is computed via
+  <code>color-mix(in srgb, …)</code>. Changing the 5 source tokens
+  re-themes the entire app instantly.
+</p>
+
+<!-- ============ [04] SPACING SCALE ============ -->
+<h2>[ 04 ] · spacing scale</h2>
+<div class="tag">// <b>4px module</b> · architectural rhythm across components</div>
+
+<table>
+  <thead>
+    <tr><th>token</th><th>value</th><th>used for</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><b>--sp-1</b></td><td>4px</td><td>grid gap, tight stacking</td></tr>
+    <tr><td><b>--sp-2</b></td><td>8px</td><td>icon padding, label gutters</td></tr>
+    <tr><td><b>--sp-3</b></td><td>12px</td><td>button padding, panel padding</td></tr>
+    <tr><td><b>--sp-4</b></td><td>16px</td><td>panel inset, section gap</td></tr>
+    <tr><td><b>--sp-5</b></td><td>24px</td><td>major divider, group gap</td></tr>
+    <tr><td><b>--sp-6</b></td><td>32px</td><td>section spacing</td></tr>
+    <tr><td><b>--sp-7</b></td><td>48px</td><td>masthead, large sections</td></tr>
+    <tr><td><b>--sp-8</b></td><td>64px</td><td>page boundary</td></tr>
+  </tbody>
+</table>
+
+<p>
+  Component heights (<code>--h-btn</code>, <code>--h-input</code>,
+  <code>--h-toolbar</code>, <code>--h-panel-head</code>) snap to multiples
+  of the same module so vertical rhythm stays consistent across every
+  panel and control.
+</p>
+
+<!-- ============ [05] BOOT SEQUENCE ============ -->
+<h2>[ 05 ] · boot sequence</h2>
+<div class="tag">// <b>boot()</b> · runs once on DOMContentLoaded · order matters</div>
+
+<div class="chain">
+  <div class="chain-title">// boot timeline</div>
+  <div class="flow"><span class="node">1. loadTheme</span><span class="arrow">→</span><span class="node">2. buildPiano</span><span class="arrow">→</span><span class="node">3. wire UI</span></div>
+  <div class="flow"><span class="node">4. Audio.init</span><span class="arrow">→</span><span class="node">seed drum + synth track</span></div>
+  <div class="flow"><span class="node">5. wsApplyLayout('studio')</span><span class="arrow">→</span><span class="node">restoreCollapseState</span><span class="arrow">→</span><span class="node">buildPanelMenu</span></div>
+  <div class="flow"><span class="node">6. setupKaoss</span><span class="arrow">→</span><span class="node">Scope.init</span><span class="arrow">→</span><span class="node">FreqMatrix.start</span></div>
+  <div class="flow"><span class="node">7. buildSampleCards</span><span class="arrow">→</span><span class="node">refreshAllTrackUI</span><span class="arrow">→</span><span class="node dim">defer: buildPiano (×2)</span></div>
+  <div class="flow-label">AudioContext is created at step 4 but cannot produce sound until user gesture (veil click)</div>
+</div>
+
+<div class="callout">
+  <span class="label">// note</span>
+  <code>Audio.init</code> creates the context immediately so track gain
+  nodes exist before user interaction. The browser allows construction
+  but suspends output until <code>ctx.resume()</code> is called from a
+  user gesture. The "let's play" veil doubles as the loading screen AND
+  the required user-gesture handshake.
+</div>
+
+<!-- ============ [06] STATE MODEL ============ -->
+<h2>[ 06 ] · state model</h2>
+<div class="tag">// <b>State</b> · single object · session-scoped (not persisted)</div>
+
+<table>
+  <thead><tr><th>key</th><th>shape</th><th>persisted</th></tr></thead>
+  <tbody>
+    <tr><td><b>State.tracks</b></td><td>array of track objects</td><td>no</td></tr>
+    <tr><td><b>State.recordedNotes</b></td><td>{ trackId: [notes] }</td><td>no</td></tr>
+    <tr><td><b>State.selectedTrack</b></td><td>track id</td><td>no</td></tr>
+    <tr><td><b>State.bpm</b></td><td>number</td><td>no</td></tr>
+    <tr><td><b>State.loopBars</b></td><td>1, 2, 4, or 8</td><td>no</td></tr>
+    <tr><td><b>localStorage.projectDawTheme</b></td><td>5-var snapshot</td><td><b>yes</b></td></tr>
+    <tr><td><b>localStorage.projectDawWS</b></td><td>panel collapse state</td><td><b>yes</b></td></tr>
+  </tbody>
+</table>
+
+<!-- ============ [07] RESET BEHAVIOR ============ -->
+<h2>[ 07 ] · reset behavior</h2>
+<div class="tag">// <b>resetAllSettings()</b> · single shared function for both reset buttons</div>
+
+<p>
+  As of v0.2.0, the toolbar <code>reset</code> button and the settings
+  <code>reset all</code> button both call the same function. Behavior:
+</p>
+
+<table>
+  <thead><tr><th>action</th><th>effect</th></tr></thead>
+  <tbody>
+    <tr><td>localStorage.removeItem('projectDawTheme')</td><td>clear saved theme</td></tr>
+    <tr><td>localStorage.removeItem('projectDawWS')</td><td>clear saved collapse state</td></tr>
+    <tr><td>remove inline CSS var overrides</td><td>5 theme tokens revert to <code>:root</code> defaults</td></tr>
+    <tr><td>syncThemeUI() + wsApplyLayout('studio')</td><td>repaint controls + reapply default layout</td></tr>
+    <tr><td><strong>tracks: untouched</strong></td><td>session content preserved</td></tr>
+  </tbody>
+</table>
+
+<!-- ============ [08] FILE MANIFEST ============ -->
+<h2>[ 08 ] · file manifest</h2>
+<div class="tag">// <b>release</b> · v0.5.0 · edition 0.0.5</div>
+
+<table>
+  <thead><tr><th>file</th><th>purpose</th><th>size</th></tr></thead>
+  <tbody>
+    <tr><td><b>index.html</b></td><td>the entire app — single file, no dependencies</td><td>~6300 lines</td></tr>
+    <tr><td><b>scheme.html</b></td><td>this document — architecture reference</td><td>—</td></tr>
+    <tr><td><b>README.md</b></td><td>quick start + changelog + features</td><td>—</td></tr>
+  </tbody>
+</table>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <span>project-daw // scheme</span>
+  <span>edition 0.0.5 · v0.5.0</span>
+</footer>
+
+</main>
+</body>
+</html>
