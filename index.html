@@ -712,6 +712,146 @@ body::after{
 .sample-card .sc-tag{ display: none }
 .sample-card .sc-viz{ display: none }
 
+/* ----- [08] SAMPLE BANK overlay ----- */
+/* Same overlay chrome as #pStart (defined via .overlay-panel above). The
+   panel-body hosts a 5×5 grid plus a small foot legend. */
+#pBank.overlay-panel{
+  z-index: 50;
+  background: color-mix(in srgb, var(--panel) 96%, transparent);
+  backdrop-filter: blur(2px);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--ink) 6%, transparent) inset,
+              0 24px 48px -16px rgba(0,0,0,.85);
+}
+#pBank.overlay-panel.lifted{ z-index: 60 }
+#pBank .panel-body{
+  padding: var(--sp-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.bank-grid{
+  flex: 1;
+  display: grid;
+  grid-template-columns: 80px repeat(5, 1fr);
+  grid-template-rows: 20px repeat(5, 1fr);
+  gap: 4px;
+  min-height: 0;
+}
+.bank-cell{
+  border: 1px solid var(--line-soft);
+  background: transparent;
+  padding: var(--sp-2);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: left;
+  font: inherit;
+  color: var(--ink-dim);
+  transition: border-color .12s, background .12s, color .12s;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  line-height: 1.15;
+}
+.bank-cell:hover{ border-color: var(--ink); color: var(--ink); }
+.bank-cell.playing{
+  border-color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 12%, transparent);
+  color: var(--ink);
+}
+.bank-cell .bc-role{
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+.bank-cell .bc-name{
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+/* Row labels (genre) — read-only header cells in the left gutter */
+.bank-rowlabel{
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 var(--sp-2);
+  font-family: 'Michroma', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  border-right: 1px solid var(--line-soft);
+}
+/* Column labels (role) — read-only header cells in the top row */
+.bank-collabel{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Michroma', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  border-bottom: 1px solid var(--line-soft);
+}
+/* Top-left empty corner */
+.bank-corner{ background: transparent }
+.bank-foot{
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  text-align: center;
+  padding-top: var(--sp-1);
+  border-top: 1px solid var(--line-faint);
+}
+
+/* ----- Artist preset chips (top of [08] body) ----- */
+/* A compact horizontal strip of "snap to BPM" presets, modeled on the
+   real-world tempo/key signatures of Daft Punk + Boris Brejcha. Clicking
+   sets State.bpm, flashes the matching recipe in the log, and (if the
+   loop is running) keeps it running so the user hears the shift. */
+.bank-presets{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--sp-1) 0 var(--sp-2);
+  border-bottom: 1px dashed var(--line-soft);
+  margin-bottom: var(--sp-1);
+  flex-wrap: wrap;
+}
+.bank-preset-label{
+  font-family: 'Michroma', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--ink-faint);
+  margin-right: var(--sp-1);
+  flex: none;
+}
+.bank-preset{
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid var(--line-soft);
+  color: var(--ink-dim);
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: border-color .12s, background .12s, color .12s;
+  white-space: nowrap;
+}
+.bank-preset:hover{ border-color: var(--ink); color: var(--ink); }
+.bank-preset.active{
+  border-color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
+  color: var(--ink);
+}
+
 /* dropdown badge for overlay panels */
 .menu-tag{
   display: inline-block;
@@ -1788,7 +1928,7 @@ body.veil-gone .veil{ opacity:0; pointer-events:none }
 <!-- LOADING VEIL -->
 <div class="veil" id="veil">
   <div class="mark" id="vMark">PROJECT-DAW</div>
-  <div class="tag" id="vTag">browser workstation · edition 0.0.6</div>
+  <div class="tag" id="vTag">browser workstation · edition 0.1.0</div>
   <div class="bar-wrap" id="vWrap"><div class="bar" id="vBar"></div></div>
   <div class="pct" id="vPct">0%</div>
   <div class="hint" id="vHint">click anywhere to enter</div>
@@ -1847,6 +1987,31 @@ body.veil-gone .veil{ opacity:0; pointer-events:none }
     </div>
     <div class="panel-body">
       <div class="samples-row" id="samplesRow"></div>
+    </div>
+  </section>
+
+  <!-- SAMPLE BANK — [08] layer-1 floating overlay. 5×5 grid of cross-genre
+       sample tiles. Hidden by default; toggle via the "panels ▾" menu.
+       Default geometry is centered-ish in the workspace so users discover it
+       in a useful spot. Click a tile to add it as a new configured track. -->
+  <section class="panel overlay-panel" id="pBank" data-default-w="760" data-default-h="460">
+    <div class="panel-head">
+      <div class="title">[ 08 ] <span class="num">// sample bank · 5×5 · multi-genre</span></div>
+      <div class="tools">
+        <button class="tb-btn" data-act="collapse" title="collapse">−</button><button class="tb-btn" data-act="close" title="close">×</button>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="bank-presets" id="bankPresets">
+        <span class="bank-preset-label">PRESET:</span>
+        <button class="bank-preset" data-preset="french-touch" title="Daft Punk · French Touch — 123 BPM, Cm, four-on-floor house">DAFT · french touch</button>
+        <button class="bank-preset" data-preset="da-funk" title="Daft Punk · Homework-era — 111 BPM, Cm, slower funky house">DAFT · homework</button>
+        <button class="bank-preset" data-preset="brejcha" title="Boris Brejcha · High-Tech Minimal — 125 BPM, Cm">BREJCHA · high-tech</button>
+      </div>
+      <div class="bank-grid" id="bankGrid"></div>
+      <div class="bank-foot">
+        <span class="bank-legend">rows = genre · cols = role · click to add as track</span>
+      </div>
     </div>
   </section>
 
@@ -2276,10 +2441,12 @@ body.veil-gone .veil{ opacity:0; pointer-events:none }
           <p class="credit-line">
             <span class="credit-brand">PROJECT-DAW</span>
             <span class="credit-sep">·</span>
-            <span class="credit-edition">v0.6.0 · MVP edition · open source</span>
+            <span class="credit-edition">v0.1.0 · MVP edition · open source</span>
           </p>
           <p class="credit-line">
             built by <a href="https://13studio.co" target="_blank" rel="noopener">13STUDIO</a>
+            <span class="credit-sep">·</span>
+            <a href="https://13studio.co" target="_blank" rel="noopener">13studio.co</a>
           </p>
           <p class="credit-line">
             source &amp; issues:
@@ -3279,6 +3446,286 @@ const SAMPLES = [
   },
 ];
 
+/* =========================================================
+   BANK_SAMPLES — the 25-tile sample bank in [08].
+   5 genres (rows) × 5 roles (cols). All in C minor, all use the
+   current session BPM at click time. Drums are step patterns
+   (BPM-agnostic); synths position notes by step count × step
+   duration (also BPM-agnostic at click time). Tile click adds
+   a configured track exactly like [00] samples.
+
+   Row order: house, hip-hop, jazz, trap, ambient
+   Col order: foundation, hats, bass, harmony, lead
+   ========================================================= */
+const BANK_GENRES = ['HOUSE', 'HIP-HOP', 'JAZZ', 'TRAP', 'AMBIENT'];
+const BANK_ROLES  = ['foundation', 'hats', 'bass', 'harmony', 'lead'];
+
+/* Helper to seed step-grid synth-track notes at given step indices
+   (0..63 across a 4-bar / 16-step-per-bar loop). Uses State.bpm at
+   call time so tracks added later still align with the session. */
+function _seedSynthNotes(t, steps, dur16ths = 3){
+  const stepDur = (60 / State.bpm) / 4;
+  steps.forEach(([midi, step]) => {
+    t.notes.push({ midi, t: step * stepDur, dur: stepDur * dur16ths });
+  });
+}
+
+const BANK_SAMPLES = [
+  /* ===== ROW 1 · HOUSE ===== */
+  { genre: 'HOUSE', role: 'foundation', name: 'four-floor kick',
+    setup(){ _ensureBpm();
+      const t = newTrack('drum'); t.name = 'house.kick'; t.drumKit = '909';
+      // 4-on-the-floor kick, every quarter note
+      t.pattern.grid[0] = [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0].map(Boolean);
+      // Light clap on 2 and 4
+      t.pattern.grid[1] = [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0].map(Boolean);
+      return t; } },
+  { genre: 'HOUSE', role: 'hats', name: 'offbeat hats',
+    setup(){ _ensureBpm();
+      const t = newTrack('drum'); t.name = 'house.hats'; t.drumKit = '909';
+      // Closed hat on offbeats — classic house shuffle feel
+      t.pattern.grid[2] = [0,0,1,0, 0,0,1,0, 0,0,1,0, 0,0,1,0].map(Boolean);
+      // Open hat accent on the &-of-2 of bar
+      t.pattern.grid[3] = [0,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0].map(Boolean);
+      return t; } },
+  { genre: 'HOUSE', role: 'bass', name: 'pluck sub',
+    setup(){ _ensureBpm();
+      const t = newTrack('synth'); t.name = 'house.bass'; t.voice = 'bass';
+      // Driving syncopated 1/8 plucks — Cm root + 5ths
+      // Pattern: 1, e, 2, &, 3, e, 4, & at varying degrees
+      _seedSynthNotes(t, [
+        [36,0],[36,2],[43,4],[36,6], [36,8],[36,10],[43,12],[36,14],   // Cm
+        [41,16],[41,18],[48,20],[41,22], [41,24],[41,26],[48,28],[41,30], // Fm
+        [34,32],[34,34],[41,36],[34,38], [34,40],[34,42],[41,44],[34,46], // Bb
+        [39,48],[39,50],[46,52],[39,54], [39,56],[39,58],[46,60],[39,62], // Eb
+      ], 1);
+      return t; } },
+  { genre: 'HOUSE', role: 'harmony', name: 'piano stab',
+    setup(){ _ensureBpm();
+      const t = newTrack('synth'); t.name = 'house.stabs'; t.voice = 'rhodes';
+      // Classic house piano stabs on the & of beats 2 and 4
+      CHORD_PROGRESSION.forEach((chord, bar) => {
+        const base = bar * 16;
+        chord.notes.forEach(midi => {
+          t.notes.push({ midi: midi + 12, t: (base + 6) * ((60/State.bpm)/4), dur: ((60/State.bpm)/4) * 2 });
+          t.notes.push({ midi: midi + 12, t: (base + 14) * ((60/State.bpm)/4), dur: ((60/State.bpm)/4) * 2 });
+        });
+      });
+      return t; } },
+  { genre: 'HOUSE', role: 'lead', name: 'square pluck',
+    setup(){ _ensureBpm();
+      const t = newTrack('synth'); t.name = 'house.lead'; t.voice = 'osc'; t.wave = 'square';
+      // Simple melodic hook outlining the chord tops
+      _seedSynthNotes(t, [
+        [72,0],[75,4],[79,8],[75,12],          // Cm
+        [77,16],[80,20],[84,24],[80,28],       // Fm
+        [70,32],[74,36],[77,40],[74,44],       // Bb
+        [70,48],[75,52],[79,56],[75,60],       // Eb
+      ], 3);
+      return t; } },
+
+  /* ===== ROW 2 · HIP-HOP ===== */
+  { genre: 'HIP-HOP', role: 'foundation', name: 'boom-bap',
+    setup(){ _ensureBpm();
+      const t = newTrack('drum'); t.name = 'hiphop.boombap'; t.drumKit = 'lo';
+      // Classic boom-bap: kick on 1, syncopated kick before 3, snare on 2 & 4
+      t.pattern.grid[0] = [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,1].map(Boolean);
+      t.pattern.grid[1] = [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0].map(Boolean);
+      return t; } },
+  { genre: 'HIP-HOP', role: 'hats', name: 'shuffle hats',
+    setup(){ _ensureBpm();
+      const t = newTrack('drum'); t.name = 'hiphop.hats'; t.drumKit = 'lo';
+      // 8th-note hats with a missing-cell shuffle feel
+      t.pattern.grid[2] = [1,0,1,1, 1,0,1,0, 1,1,1,0, 1,0,1,1].map(Boolean);
+      return t; } },
+  { genre: 'HIP-HOP', role: 'bass', name: '808 sub',
+    setup(){ _ensureBpm();
+      const t = newTrack('synth'); t.name = 'hiphop.sub'; t.voice = 'bass';
+      // Sustained low notes following chord roots, with a slide tail
+      _seedSynthNotes(t, [
+        [36,0],[36,12],   // Cm
+        [41,16],[41,28],  // Fm
+        [34,32],[34,44],  // Bb
+        [39,48],[39,60],  // Eb
+      ], 10);
+      return t; } },
+  { genre: 'HIP-HOP', role: 'harmony', name: 'rhodes chops',
+    setup(){ _ensureBpm();
+      const t = newTrack('synth'); t.name = 'hiphop.rhodes'; t.voice = 'rhodes';
+      // Sampled-feel staccato chord chops on beat 1 and the 'and-of-2'
+      CHORD_PROGRESSION.forEach((chord, bar) => {
+        const base = bar * 16;
+        chord.notes.forEach(midi => {
+          t.notes.push({ midi, t: base * ((60/State.bpm)/4), dur: ((60/State.bpm)/4) * 2 });
+          t.notes.push({ midi, t: (base + 6) * ((60/State.bpm)/4), dur: ((60/State.bpm)/4) * 2 });
+        });
+      });
+      return t; } },
+  { genre: 'HIP-HOP', role: 'lead', name: 'minor melody',
+    setup(){ _ensureBpm();
+      const t = newTrack('synth'); t.name = 'hiphop.lead'; t.voice = 'piano';
+      // Pentatonic-flavored melodic line over the changes
+      _seedSynthNotes(t, [
+        [67,0],[70,4],[72,6],[75,10],          // over Cm
+        [70,16],[68,20],[72,24],[75,28],       // over Fm
+        [69,32],[72,36],[74,40],[77,44],       // over Bb
+        [70,48],[72,52],[75,56],[79,60],       // over Eb
+      ], 3);
+      return t; } },
+
+  /* ===== ROW 3 · JAZZ ===== */
+  { genre: 'JAZZ', role: 'foundation', name: 'brush kick',
+    setup(){ _ensureBpm();
+      const t = newTrack('drum'); t.name = 'jazz.brush'; t.drumKit = 'lo';
+      // Subtle kick on 1 and 3 — jazz comping feel
+      t.pattern.grid[0] = [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0].map(Boolean);
+      // Snare/rim ghost notes on 2 & 4
+      t.pattern.grid[1] = [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0].map(Boolean);
+      return t; } },
+  { genre: 'JAZZ', role: 'hats', name: 'ride pattern',
+    setup(){ _ensureBpm();
+      const t = newTrack('drum'); t.name = 'jazz.ride'; t.drumKit = '909';
+      // Classic ride: spang-a-lang — quarter + skip-jump-quarter-skip
+      t.pattern.grid[2] = [1,0,1,1, 1,0,1,1, 1,0,1,1, 1,0,1,1].map(Boolean);
+      // Hi-hat foot on 2 and 4
+      t.pattern.grid[3] = [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0].map(Boolean);
+      return t; } },
+  { genre: 'JAZZ', role: 'bass', name: 'walking upright',
+    setup(){ _ensureBpm();
+      const t = newTrack('synth'); t.name = 'jazz.walk'; t.voice = 'bass';
+      // Walking quarter-note bass through the changes
+      _seedSynthNotes(t, [
+        [36,0],[39,4],[43,8],[46,12],     // C Eb G Bb (Cm)
+        [41,16],[44,20],[48,24],[46,28],  // F Ab C Bb (Fm)
+        [34,32],[37,36],[41,40],[39,44],  // Bb D F Eb (Bb7)
+        [39,48],[42,52],[46,56],[44,60],  // Eb G Bb Ab (Eb maj7)
+      ], 4);
+      return t; } },
+  { genre: 'JAZZ', role: 'harmony', name: 'piano comping',
+    setup(){ _ensureBpm();
+      const t = newTrack('synth'); t.name = 'jazz.comp'; t.voice = 'piano';
+      // Syncopated jazz comping — & of 2, 4, & of 4
+      CHORD_PROGRESSION.forEach((chord, bar) => {
+        const base = bar * 16;
+        chord.notes.forEach(midi => {
+          t.notes.push({ midi, t: (base + 6)  * ((60/State.bpm)/4), dur: ((60/State.bpm)/4) * 1 });
+          t.notes.push({ midi, t: (base + 12) * ((60/State.bpm)/4), dur: ((60/State.bpm)/4) * 1 });
+          t.notes.push({ midi, t: (base + 14) * ((60/State.bpm)/4), dur: ((60/State.bpm)/4) * 1 });
+        });
+      });
+      return t; } },
+  { genre: 'JAZZ', role: 'lead', name: 'horn line',
+    setup(){ _ensureBpm();
+      const t = newTrack('synth'); t.name = 'jazz.horn'; t.voice = 'osc'; t.wave = 'triangle';
+      // Bluesy melody over the changes — uses b5 passing tones
+      _seedSynthNotes(t, [
+        [70,2],[72,6],[75,10],[78,14],         // Cm with #4 passing
+        [72,18],[75,22],[77,26],[80,30],       // Fm
+        [74,34],[77,38],[79,42],[82,46],       // Bb
+        [75,50],[79,54],[82,58],[79,62],       // Eb
+      ], 4);
+      return t; } },
+
+  /* ===== ROW 4 · TRAP ===== */
+  { genre: 'TRAP', role: 'foundation', name: '808 kick',
+    setup(){ _ensureBpm();
+      const t = newTrack('drum'); t.name = 'trap.808'; t.drumKit = '808';
+      // Sparse, half-time kick — beat 1 and beat 3, with a syncopated ghost
+      t.pattern.grid[0] = [1,0,0,0, 0,0,0,0, 1,0,0,1, 0,0,0,0].map(Boolean);
+      // Clap/snap on beat 3 (half-time backbeat)
+      t.pattern.grid[1] = [0,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0].map(Boolean);
+      return t; } },
+  { genre: 'TRAP', role: 'hats', name: 'rolling hats',
+    setup(){ _ensureBpm();
+      const t = newTrack('drum'); t.name = 'trap.hats'; t.drumKit = '808';
+      // 16th-note hats with triplet rolls — classic trap signature
+      t.pattern.grid[2] = [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1].map(Boolean);
+      // Open hat accent
+      t.pattern.grid[3] = [0,0,0,1, 0,0,0,0, 0,0,0,0, 0,1,0,0].map(Boolean);
+      return t; } },
+  { genre: 'TRAP', role: 'bass', name: 'sliding 808',
+    setup(){ _ensureBpm();
+      const t = newTrack('synth'); t.name = 'trap.slide'; t.voice = 'bass';
+      // Long sustained 808s that slide between chord roots
+      _seedSynthNotes(t, [
+        [36,0],   // Cm — long held
+        [41,16],  // Fm
+        [34,32],  // Bb
+        [39,48],  // Eb
+      ], 14);
+      return t; } },
+  { genre: 'TRAP', role: 'harmony', name: 'dark pluck',
+    setup(){ _ensureBpm();
+      const t = newTrack('synth'); t.name = 'trap.pluck'; t.voice = 'osc'; t.wave = 'sawtooth';
+      // Detuned arpeggio sweep across the chord — half-note rhythm
+      CHORD_PROGRESSION.forEach((chord, bar) => {
+        const base = bar * 16;
+        chord.notes.forEach((midi, i) => {
+          t.notes.push({ midi, t: (base + i * 2) * ((60/State.bpm)/4), dur: ((60/State.bpm)/4) * 1.5 });
+        });
+      });
+      return t; } },
+  { genre: 'TRAP', role: 'lead', name: 'bell melody',
+    setup(){ _ensureBpm();
+      const t = newTrack('synth'); t.name = 'trap.bell'; t.voice = 'osc'; t.wave = 'sine';
+      // Sparse high bell-tone melody
+      _seedSynthNotes(t, [
+        [84,0],[87,8],[84,12],                 // Cm
+        [89,16],[92,24],[89,28],               // Fm
+        [82,32],[86,40],[82,44],               // Bb
+        [87,48],[91,56],[87,60],               // Eb
+      ], 4);
+      return t; } },
+
+  /* ===== ROW 5 · AMBIENT ===== */
+  { genre: 'AMBIENT', role: 'foundation', name: 'soft pulse',
+    setup(){ _ensureBpm();
+      const t = newTrack('drum'); t.name = 'ambient.pulse'; t.drumKit = 'lo';
+      // Single soft pulse on beat 1 of every bar — minimal anchor
+      t.pattern.grid[0] = [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0].map(Boolean);
+      return t; } },
+  { genre: 'AMBIENT', role: 'hats', name: 'texture wash',
+    setup(){ _ensureBpm();
+      const t = newTrack('drum'); t.name = 'ambient.texture'; t.drumKit = 'lo';
+      // Sparse, randomly-feeling perc/hat texture
+      t.pattern.grid[2] = [0,0,0,1, 0,1,0,0, 0,0,1,0, 0,0,0,1].map(Boolean);
+      t.pattern.grid[3] = [0,1,0,0, 0,0,1,0, 1,0,0,0, 0,1,0,0].map(Boolean);
+      return t; } },
+  { genre: 'AMBIENT', role: 'bass', name: 'slow drone',
+    setup(){ _ensureBpm();
+      const t = newTrack('synth'); t.name = 'ambient.drone'; t.voice = 'osc'; t.wave = 'sine';
+      // One sustained low note per chord — long & enveloping
+      _seedSynthNotes(t, [
+        [36,0],   // Cm — full bar
+        [41,16],  // Fm
+        [34,32],  // Bb
+        [39,48],  // Eb
+      ], 16);
+      return t; } },
+  { genre: 'AMBIENT', role: 'harmony', name: 'breathing pad',
+    setup(){ _ensureBpm();
+      const t = newTrack('synth'); t.name = 'ambient.pad'; t.voice = 'osc'; t.wave = 'triangle';
+      // Pad chords held the full bar — overlap creates lush continuity
+      CHORD_PROGRESSION.forEach((chord, bar) => {
+        const base = bar * 16;
+        chord.notes.forEach(midi => {
+          t.notes.push({ midi, t: base * ((60/State.bpm)/4), dur: ((60/State.bpm)/4) * 16 });
+        });
+      });
+      return t; } },
+  { genre: 'AMBIENT', role: 'lead', name: 'sparse arp',
+    setup(){ _ensureBpm();
+      const t = newTrack('synth'); t.name = 'ambient.arp'; t.voice = 'rhodes';
+      // Spread-out arpeggio — one note every 2 beats
+      _seedSynthNotes(t, [
+        [72,0],[75,8],                          // Cm
+        [77,16],[80,24],                        // Fm
+        [70,32],[74,40],                        // Bb
+        [75,48],[79,56],                        // Eb
+      ], 8);
+      return t; } },
+];
+
 function buildSampleCards(){
   const row = document.getElementById('samplesRow');
   if (!row) return;
@@ -3323,6 +3770,126 @@ function buildSampleCards(){
       setTimeout(() => card.classList.remove('playing'), 800);
     });
     row.appendChild(card);
+  });
+}
+
+/* Build the [08] sample bank: 5 rows × 5 cols + a row of column labels
+   and a column of row labels. Click handler matches the [00] sample
+   pattern — adds a configured track, auto-plays, gives visual feedback. */
+function buildBankGrid(){
+  const grid = document.getElementById('bankGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  // Top-left empty corner
+  const corner = document.createElement('div');
+  corner.className = 'bank-corner';
+  grid.appendChild(corner);
+  // Column headers (roles)
+  BANK_ROLES.forEach(role => {
+    const h = document.createElement('div');
+    h.className = 'bank-collabel';
+    h.textContent = role;
+    grid.appendChild(h);
+  });
+  // Each row: genre label, then 5 cells
+  BANK_GENRES.forEach((genre, gi) => {
+    const lbl = document.createElement('div');
+    lbl.className = 'bank-rowlabel';
+    lbl.textContent = genre;
+    grid.appendChild(lbl);
+    for (let ri = 0; ri < BANK_ROLES.length; ri++){
+      const idx = gi * BANK_ROLES.length + ri;
+      const sample = BANK_SAMPLES[idx];
+      const btn = document.createElement('button');
+      btn.className = 'bank-cell';
+      btn.dataset.idx = idx;
+      btn.innerHTML = `
+        <span class="bc-role">${sample.role}</span>
+        <span class="bc-name">${sample.name}</span>
+      `;
+      btn.addEventListener('click', () => {
+        if (State.tracks.length >= 10){
+          flashLog('max 10 tracks — remove one first');
+          return;
+        }
+        const t = sample.setup();
+        document.getElementById('bpmInput').value = State.bpm;
+        State.selectedTrack = t.id;
+        refreshAllTrackUI();
+        // Auto-route panels to the new track
+        const kbSel = document.getElementById('kbTrackSel');
+        const drSel = document.getElementById('drumTrackSel');
+        if (kbSel) kbSel.value = t.id;
+        if (drSel) drSel.value = t.id;
+        syncKeyboardPanelToTrack();
+        renderDrumGrid();
+        flashLog(`+ ${sample.genre.toLowerCase()}.${sample.name} → ${t.name}`);
+        // Auto-play if not playing yet
+        if (!State.playing){
+          setTimeout(() => { if (!State.playing) togglePlay(); }, 150);
+        }
+        // Visual feedback — flash the tile
+        document.querySelectorAll('.bank-cell').forEach(c => c.classList.remove('playing'));
+        btn.classList.add('playing');
+        setTimeout(() => btn.classList.remove('playing'), 800);
+      });
+      grid.appendChild(btn);
+    }
+  });
+}
+
+/* Artist preset chips at the top of [08]. Each preset captures the
+   real-world signature tempo (and could be extended to key/swing later)
+   of a studied artist. Clicking sets State.bpm and reflects it in the
+   transport BPM input. We do NOT auto-add tiles — the user chooses
+   which row(s) to stack. Instead, we flash a recipe in the log so they
+   know which tiles match the preset.
+
+   Notes on tempo choices (sourced from public BPM databases):
+     - french-touch : 123 BPM — sits between "One More Time" (123) and
+                      "Around the World" (122). Daft Punk's French house era.
+     - da-funk      : 111 BPM — the slower, funkier "Homework" zone
+                      ("Da Funk" itself is 111).
+     - brejcha      : 125 BPM — Boris Brejcha's near-universal tempo
+                      ("Kick It", "Take It Smart", and effectively every
+                      "high-tech minimal" peak-time track).
+*/
+const BANK_PRESETS = {
+  'french-touch': {
+    bpm: 123,
+    label: 'french-touch',
+    recipe: 'try: house · four-floor + offbeat + pluck sub + piano stab + square pluck',
+  },
+  'da-funk': {
+    bpm: 111,
+    label: 'homework',
+    recipe: 'try: house · four-floor + offbeat + pluck sub (one-note feel) + hip-hop · rhodes chops',
+  },
+  'brejcha': {
+    bpm: 125,
+    label: 'high-tech minimal',
+    recipe: 'try: trap · 808 + rolling hats + sliding 808 + ambient · breathing pad + ambient · sparse arp',
+  },
+};
+
+function wireBankPresets(){
+  const host = document.getElementById('bankPresets');
+  if (!host) return;
+  host.querySelectorAll('.bank-preset').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.preset;
+      const preset = BANK_PRESETS[key];
+      if (!preset) return;
+      // Make sure audio is up so BPM changes apply immediately
+      if (!Audio.ctx) Audio.init();
+      State.bpm = preset.bpm;
+      const bpmInput = document.getElementById('bpmInput');
+      if (bpmInput) bpmInput.value = preset.bpm;
+      // Visual: mark this preset as active, dim the others
+      host.querySelectorAll('.bank-preset').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      flashLog(`preset · ${preset.label} · ${preset.bpm} BPM · ${preset.recipe}`);
+    });
   });
 }
 
@@ -4395,7 +4962,7 @@ function _ws(view, offset, str){
      into a grid slot. [00] is the only overlay; the architecture supports
      more if needed. */
 const PANEL_IDS = ['pTransport','pTracks','pDrums','pKeyboard','pKaoss','pScope','pFreq'];
-const OVERLAY_IDS = ['pStart'];
+const OVERLAY_IDS = ['pStart', 'pBank'];
 const PANEL_LABELS = {
   pTransport:'transport · master',
   pTracks:'tracks',
@@ -4406,6 +4973,7 @@ const PANEL_LABELS = {
   pFreq:'freq matrix',
   // overlay
   pStart:'let\'s play (overlay)',
+  pBank: 'sample bank · 5×5 (overlay)',
 };
 /* All toggleable panel IDs, in display order for the panels ▾ dropdown.
    Overlays appear at the top so they're easy to find. */
@@ -4468,28 +5036,44 @@ function wsEnabled(){
 /* Position layer-1 floating overlays at their default workspace anchor.
    Called on boot and after fullReset. Does NOT run during normal viewport
    resize (we want overlay position to "stick" once the user drags it),
-   except when the overlay would fall outside the viewport. */
+   except when the overlay would fall outside the viewport.
+
+   Per-overlay defaults:
+     - Each overlay may set data-default-w / data-default-h on the
+       <section> element. If absent, fallback defaults apply.
+     - pStart anchors top-left (12, 12) per the original ref pic.
+     - pBank anchors near top-center (offset right from pStart) so it
+       doesn't overlap the [00] strip when both are visible. */
 function _positionOverlays(){
   const ws = document.getElementById('workspace');
   if (!ws) return;
   const wsRect = ws.getBoundingClientRect();
+  const DEFAULT_ANCHORS = {
+    pStart: { left: 12,  top: 12, w: 420, h: 400 },
+    pBank:  { left: 460, top: 60, w: 760, h: 460 },
+  };
   OVERLAY_IDS.forEach(pid => {
     const p = document.getElementById(pid);
     if (!p) return;
-    // Default geometry per ref pic: ~420 × 400, anchored top-left.
-    // Cards inside read as comfortable two-line strips (id row + title row).
+    const anchor = DEFAULT_ANCHORS[pid] || { left: 24, top: 24, w: 400, h: 400 };
+    // data-default-* on the element wins over the static anchor (lets the
+    // HTML declare its preferred initial size in one place).
+    const declaredW = parseInt(p.dataset.defaultW, 10);
+    const declaredH = parseInt(p.dataset.defaultH, 10);
+    const w = !isNaN(declaredW) ? declaredW : anchor.w;
+    const h = !isNaN(declaredH) ? declaredH : anchor.h;
     const hasPos = p.style.left && p.style.top;
     if (!hasPos){
-      p.style.left = '12px';
-      p.style.top = '12px';
-      p.style.width = '420px';
-      p.style.height = '400px';
+      p.style.left = anchor.left + 'px';
+      p.style.top = anchor.top + 'px';
+      p.style.width = w + 'px';
+      p.style.height = h + 'px';
     } else {
       // Clamp to keep at least 60px visible inside the workspace
       const left = parseFloat(p.style.left) || 0;
       const top = parseFloat(p.style.top) || 0;
-      if (left > wsRect.width - 60 || left < -10) p.style.left = '12px';
-      if (top > wsRect.height - 60 || top < -10) p.style.top = '12px';
+      if (left > wsRect.width - 60 || left < -10) p.style.left = anchor.left + 'px';
+      if (top > wsRect.height - 60 || top < -10) p.style.top = anchor.top + 'px';
     }
   });
 }
@@ -4892,10 +5476,26 @@ function _restoreCollapseState(){
       if (g.collapsed) p.classList.add('collapsed');
       // For overlays, also restore drag position if saved
       if (OVERLAY_IDS.includes(pid)){
-        if (g.left) p.style.left = g.left;
-        if (g.top) p.style.top = g.top;
-        if (g.width) p.style.width = g.width;
-        if (g.height) p.style.height = g.height;
+        // pBank size migration (v0.8.0 → v0.8.1):
+        // pBank shipped with 460×500 default in v0.7/v0.8; we changed it
+        // to 760×460 in v0.8.1 after the user provided a reference
+        // screenshot. Users who never resized the panel manually will
+        // have those exact old values saved — detect that case and skip
+        // the restore so the new default applies. Users who DID drag-
+        // resize will have different numbers and keep their preference.
+        const isOldPBankDefault = (
+          pid === 'pBank' &&
+          g.width === '460px' &&
+          g.height === '500px'
+        );
+        if (isOldPBankDefault){
+          // Don't restore — let the new default in _positionOverlays take over
+        } else {
+          if (g.left) p.style.left = g.left;
+          if (g.top) p.style.top = g.top;
+          if (g.width) p.style.width = g.width;
+          if (g.height) p.style.height = g.height;
+        }
       }
     });
   } catch(_){}
@@ -6229,6 +6829,8 @@ function boot(){
 
   // 6b. Sample cards
   buildSampleCards();
+  buildBankGrid();
+  wireBankPresets();
 
   // 7. Initial UI render
   refreshAllTrackUI();
